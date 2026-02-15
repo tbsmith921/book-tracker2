@@ -735,7 +735,7 @@
             document.getElementById('avgPages').textContent = avgPages.toLocaleString();
         }
 
-        function generateRecommendations() {
+        async function generateRecommendations() {
             const section = document.getElementById('recsSection');
             const listDiv = document.getElementById('recsList');
             
@@ -743,108 +743,130 @@
             listDiv.innerHTML = '<div class="loading">Generating personalized recommendations...</div>';
 
             try {
-                // Analyze reading patterns
+                // Analyze user's reading patterns
                 const genres = myBooks.flatMap(b => b.genres || []);
                 const genreCounts = {};
                 genres.forEach(g => genreCounts[g] = (genreCounts[g] || 0) + 1);
                 
                 const topGenres = Object.entries(genreCounts)
                     .sort((a, b) => b[1] - a[1])
-                    .slice(0, 3)
+                    .slice(0, 2)
                     .map(([genre]) => genre);
 
                 const myBookTitles = myBooks.map(b => b.title.toLowerCase());
+                const myAuthors = myBooks.map(b => b.author.toLowerCase());
                 
-                // Smart recommendation database organized by genre
-                const recommendationDB = {
-                    "Fantasy": [
-                        { title: "The Name of the Wind", author: "Patrick Rothfuss", reason: "Masterful storytelling with rich world-building similar to your fantasy favorites" },
-                        { title: "Mistborn: The Final Empire", author: "Brandon Sanderson", reason: "Unique magic system and compelling characters in an epic fantasy setting" },
-                        { title: "The Way of Kings", author: "Brandon Sanderson", reason: "Epic scope and intricate plot perfect for fans of grand fantasy adventures" },
-                        { title: "A Game of Thrones", author: "George R.R. Martin", reason: "Complex characters and political intrigue in a gritty fantasy world" },
-                        { title: "The Fifth Season", author: "N.K. Jemisin", reason: "Award-winning fantasy with innovative worldbuilding and powerful storytelling" }
-                    ],
-                    "Science Fiction": [
-                        { title: "Dune", author: "Frank Herbert", reason: "Epic sci-fi with political intrigue and philosophical depth" },
-                        { title: "The Martian", author: "Andy Weir", reason: "Gripping survival story with humor and hard science" },
-                        { title: "Project Hail Mary", author: "Andy Weir", reason: "Mind-bending space adventure with heart and humor" },
-                        { title: "Ender's Game", author: "Orson Scott Card", reason: "Thought-provoking military sci-fi with compelling young protagonist" },
-                        { title: "Neuromancer", author: "William Gibson", reason: "Groundbreaking cyberpunk that defined the genre" }
-                    ],
-                    "Classic": [
-                        { title: "Jane Eyre", author: "Charlotte Brontë", reason: "Gothic romance with a fierce, independent heroine" },
-                        { title: "Wuthering Heights", author: "Emily Brontë", reason: "Passionate and dark tale of obsessive love" },
-                        { title: "Crime and Punishment", author: "Fyodor Dostoevsky", reason: "Psychological depth and moral complexity in a gripping narrative" },
-                        { title: "Moby-Dick", author: "Herman Melville", reason: "Epic adventure with philosophical undertones" },
-                        { title: "Don Quixote", author: "Miguel de Cervantes", reason: "Timeless satire that's both funny and profound" }
-                    ],
-                    "Dystopian": [
-                        { title: "The Handmaid's Tale", author: "Margaret Atwood", reason: "Chilling dystopia with powerful social commentary" },
-                        { title: "Station Eleven", author: "Emily St. John Mandel", reason: "Post-apocalyptic tale about art, memory, and humanity" },
-                        { title: "The Road", author: "Cormac McCarthy", reason: "Haunting father-son journey through a devastated world" },
-                        { title: "Never Let Me Go", author: "Kazuo Ishiguro", reason: "Quietly devastating exploration of what makes us human" }
-                    ],
-                    "Mystery": [
-                        { title: "The Girl with the Dragon Tattoo", author: "Stieg Larsson", reason: "Gripping mystery with unforgettable characters" },
-                        { title: "Gone Girl", author: "Gillian Flynn", reason: "Twisted psychological thriller that keeps you guessing" },
-                        { title: "The Silent Patient", author: "Alex Michaelides", reason: "Mind-bending psychological mystery with a shocking twist" },
-                        { title: "Big Little Lies", author: "Liane Moriarty", reason: "Compelling mystery wrapped in suburban drama" }
-                    ],
-                    "Thriller": [
-                        { title: "The Da Vinci Code", author: "Dan Brown", reason: "Fast-paced thriller blending history, art, and mystery" },
-                        { title: "Dark Matter", author: "Blake Crouch", reason: "Mind-bending sci-fi thriller about parallel worlds" },
-                        { title: "The Woman in the Window", author: "A.J. Finn", reason: "Gripping psychological thriller with unreliable narrator" }
-                    ],
-                    "Romance": [
-                        { title: "Persuasion", author: "Jane Austen", reason: "Mature romance about second chances and enduring love" },
-                        { title: "Outlander", author: "Diana Gabaldon", reason: "Epic historical romance with time travel and adventure" },
-                        { title: "The Time Traveler's Wife", author: "Audrey Niffenegger", reason: "Unique love story across time with emotional depth" }
-                    ],
-                    "Young Adult": [
-                        { title: "The Hunger Games", author: "Suzanne Collins", reason: "Action-packed dystopia with strong protagonist" },
-                        { title: "Six of Crows", author: "Leigh Bardugo", reason: "Heist story in a richly imagined fantasy world" },
-                        { title: "The Fault in Our Stars", author: "John Green", reason: "Moving contemporary story about love and loss" }
-                    ],
-                    "Historical": [
-                        { title: "All the Light We Cannot See", author: "Anthony Doerr", reason: "Beautiful WWII story with lyrical prose" },
-                        { title: "The Nightingale", author: "Kristin Hannah", reason: "Powerful tale of sisters in WWII France" },
-                        { title: "The Book Thief", author: "Markus Zusak", reason: "Unique perspective on WWII through Death's eyes" }
-                    ],
-                    "Literary": [
-                        { title: "The Goldfinch", author: "Donna Tartt", reason: "Sweeping coming-of-age story centered on art and loss" },
-                        { title: "A Little Life", author: "Hanya Yanagihara", reason: "Powerful exploration of friendship, trauma, and love" },
-                        { title: "The Underground Railroad", author: "Colson Whitehead", reason: "Imaginative reimagining of American history" }
-                    ]
-                };
+                // Get the 2 most recent books they added
+                const recentBooks = myBooks.slice(-2);
+                
+                let allRecommendations = [];
 
-                // Get recommendations based on top genres
-                let recommendations = [];
-                
+                // Strategy 1: Search for books by the same authors
+                for (const book of recentBooks.slice(0, 1)) {
+                    try {
+                        const response = await fetch(
+                            `https://www.googleapis.com/books/v1/volumes?q=inauthor:"${encodeURIComponent(book.author)}"&maxResults=5&printType=books&langRestrict=en`
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.items) {
+                                const books = data.items
+                                    .map(item => ({
+                                        title: item.volumeInfo.title || 'Untitled',
+                                        author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : book.author,
+                                        pages: item.volumeInfo.pageCount || 250,
+                                        genres: item.volumeInfo.categories || [topGenres[0] || 'Fiction'],
+                                        reason: `Another great book by ${book.author}`
+                                    }))
+                                    .filter(rec => 
+                                        !myBookTitles.includes(rec.title.toLowerCase()) &&
+                                        rec.pages > 50
+                                    );
+                                
+                                allRecommendations.push(...books.slice(0, 2));
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Same author search failed:', error);
+                    }
+                }
+
+                // Strategy 2: Search for books in their favorite genres
                 for (const genre of topGenres) {
-                    if (recommendationDB[genre]) {
-                        const genreRecs = recommendationDB[genre]
-                            .filter(rec => !myBookTitles.includes(rec.title.toLowerCase()))
-                            .slice(0, 2);
-                        recommendations.push(...genreRecs);
-                    }
-                }
-
-                // If we don't have enough, add some popular books from any genre
-                if (recommendations.length < 3) {
-                    const allRecs = Object.values(recommendationDB)
-                        .flat()
-                        .filter(rec => !myBookTitles.includes(rec.title.toLowerCase()));
+                    if (allRecommendations.length >= 10) break;
                     
-                    while (recommendations.length < 3 && allRecs.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * allRecs.length);
-                        recommendations.push(allRecs.splice(randomIndex, 1)[0]);
+                    try {
+                        const response = await fetch(
+                            `https://www.googleapis.com/books/v1/volumes?q=subject:"${encodeURIComponent(genre)}"&orderBy=relevance&maxResults=8&printType=books&langRestrict=en`
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.items) {
+                                const books = data.items
+                                    .map(item => ({
+                                        title: item.volumeInfo.title || 'Untitled',
+                                        author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author',
+                                        pages: item.volumeInfo.pageCount || 250,
+                                        genres: item.volumeInfo.categories || [genre],
+                                        reason: `Popular ${genre} book based on your reading preferences`
+                                    }))
+                                    .filter(rec => 
+                                        !myBookTitles.includes(rec.title.toLowerCase()) &&
+                                        !myAuthors.includes(rec.author.toLowerCase()) &&
+                                        rec.pages > 50 &&
+                                        rec.pages < 1500 // Avoid extremely long books
+                                    );
+                                
+                                allRecommendations.push(...books);
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Genre search failed:', error);
                     }
                 }
 
-                // Show top 3 unique recommendations
-                const uniqueRecs = recommendations
+                // Strategy 3: Search using keywords from their favorite books
+                if (allRecommendations.length < 10 && recentBooks.length > 0) {
+                    const book = recentBooks[recentBooks.length - 1];
+                    const searchTerms = `${topGenres[0] || 'fiction'} books like ${book.title}`;
+                    
+                    try {
+                        const response = await fetch(
+                            `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerms)}&maxResults=8&printType=books&langRestrict=en`
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.items) {
+                                const books = data.items
+                                    .map(item => ({
+                                        title: item.volumeInfo.title || 'Untitled',
+                                        author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author',
+                                        pages: item.volumeInfo.pageCount || 250,
+                                        genres: item.volumeInfo.categories || [topGenres[0] || 'Fiction'],
+                                        reason: `Similar to ${book.title} that you enjoyed`
+                                    }))
+                                    .filter(rec => 
+                                        !myBookTitles.includes(rec.title.toLowerCase()) &&
+                                        rec.pages > 50
+                                    );
+                                
+                                allRecommendations.push(...books);
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Similar books search failed:', error);
+                    }
+                }
+
+                // Remove duplicates and select best 3
+                const uniqueRecs = allRecommendations
                     .filter((rec, index, self) => 
-                        index === self.findIndex(r => r.title === rec.title)
+                        index === self.findIndex(r => 
+                            r.title.toLowerCase() === rec.title.toLowerCase()
+                        )
                     )
                     .slice(0, 3);
 
@@ -857,7 +879,24 @@
                         </div>
                     `).join('');
                 } else {
-                    listDiv.innerHTML = '<div class="loading">Add more books to get better recommendations!</div>';
+                    // Fallback recommendations if API fails
+                    listDiv.innerHTML = `
+                        <div class="rec-card">
+                            <div class="rec-title">Project Hail Mary</div>
+                            <div class="rec-author">by Andy Weir</div>
+                            <div class="rec-reason">Popular recent sci-fi with humor and adventure</div>
+                        </div>
+                        <div class="rec-card">
+                            <div class="rec-title">Where the Crawdads Sing</div>
+                            <div class="rec-author">by Delia Owens</div>
+                            <div class="rec-reason">Compelling mystery and coming-of-age story</div>
+                        </div>
+                        <div class="rec-card">
+                            <div class="rec-title">The Midnight Library</div>
+                            <div class="rec-author">by Matt Haig</div>
+                            <div class="rec-reason">Thoughtful contemporary fiction about life choices</div>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Recommendation error:', error);
