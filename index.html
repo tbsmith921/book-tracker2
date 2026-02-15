@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PageTurn — Your Reading Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1a1512;
+            --paper: #fffef9;
+            --aged: #f5f1e8;
+            --gold: #d4a574;
+            --copper: #b8956a;
+            --shadow: rgba(26, 21, 18, 0.12);
+            --shadow-heavy: rgba(26, 21, 18, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Hero Header */
+        .hero {
+            background: linear-gradient(165deg, var(--ink) 0%, #2d2520 100%);
+            color: var(--paper);
+            padding: 2.5rem 1.25rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(212, 165, 116, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(212, 165, 116, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tagline {
+            font-size: 0.95rem;
+            color: var(--gold);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease 0.2s forwards;
+        }
+
+        /* Stats Bar */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            padding: 1.25rem;
+            background: var(--aged);
+            border-bottom: 1px solid rgba(26, 21, 18, 0.08);
+        }
+
+        .stat {
+            text-align: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: transform 0.2s ease;
+        }
+
+        .stat:active {
+            transform: scale(0.98);
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--copper);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 0.35rem;
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 1.25rem;
+        }
+
+        /* Search Section */
+        .search-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e8e3db;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 4px 16px var(--shadow-heavy);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.25rem;
+            pointer-events: none;
+        }
+
+        .search-results {
+            margin-top: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .book-result {
+            padding: 1rem;
+            border-bottom: 1px solid #f0ebe3;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .book-result:last-child {
+            border-bottom: none;
+        }
+
+        .book-result:active {
+            background: var(--aged);
+        }
+
+        .result-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .result-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--ink);
+            margin-bottom: 0.15rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .result-author {
+            font-size: 0.85rem;
+            color: var(--copper);
+        }
+
+        .result-pages {
+            font-size: 0.8rem;
+            color: var(--gold);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Library Grid */
+        .library-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .books-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .book-card:active {
+            transform: scale(0.98);
+        }
+
+        .book-card-header {
+            background: linear-gradient(135deg, var(--ink) 0%, #2d2520 100%);
+            color: var(--paper);
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .remove-btn:active {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(0.9);
+        }
+
+        .book-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            line-height: 1.3;
+            padding-right: 2rem;
+        }
+
+        .book-author {
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
+        .book-card-body {
+            padding: 1.25rem;
+        }
+
+        .book-pages {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
+        }
+
+        .book-pages-label {
+            font-size: 0.75rem;
+            color: var(--copper);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 0.35rem;
+            font-weight: 600;
+        }
+
+        .book-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .genre-tag {
+            background: var(--aged);
+            color: var(--copper);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid rgba(212, 165, 116, 0.2);
+        }
+
+        /* Recommendations */
+        .recs-section {
+            margin-bottom: 2rem;
+        }
+
+        .recs-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .rec-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px var(--shadow);
+            border-left: 4px solid var(--gold);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .rec-card-link {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .rec-card-link:active {
+            transform: scale(0.98);
+        }
+
+        .rec-card-link:hover {
+            box-shadow: 0 6px 20px var(--shadow-heavy);
+        }
+
+        .rec-header {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .rec-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .rec-thumbnail {
+            width: 60px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .rec-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+        }
+
+        .rec-author {
+            font-size: 0.9rem;
+            color: var(--copper);
+            margin-bottom: 0.5rem;
+        }
+
+        .rec-reason {
+            font-size: 0.9rem;
+            color: var(--ink);
+            line-height: 1.6;
+            opacity: 0.85;
+        }
+
+        .rec-action {
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--aged);
+        }
+
+        .rec-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gold);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .rec-card-link:active .rec-button {
+            color: var(--copper);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            color: var(--copper);
+            line-height: 1.6;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--copper);
+            font-style: italic;
+        }
+
+        /* Animations */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--aged);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--copper);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <div class="logo">PageTurn</div>
+            <div class="tagline">Your Reading Journey</div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-value" id="totalBooks">0</div>
+            <div class="stat-label">Books</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="totalPages">0</div>
+            <div class="stat-label">Pages</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value" id="avgPages">0</div>
+            <div class="stat-label">Avg Pages</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-section">
+            <div class="search-header">
+                <div class="section-title">Add Books</div>
+            </div>
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Search for a book..."
+                    autocomplete="off"
+                >
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="library-section">
+            <div class="search-header">
+                <div class="section-title">My Library</div>
+            </div>
+            <div class="books-grid" id="booksGrid"></div>
+        </div>
+
+        <div class="recs-section" id="recsSection" style="display: none;">
+            <div class="search-header">
+                <div class="section-title">Recommended For You</div>
+            </div>
+            <div class="recs-list" id="recsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let myBooks = [];
+        let searchTimeout;
+
+        // Expanded book database - includes popular books across genres
+        const bookDatabase = [
+            // Classics
+            { title: "1984", author: "George Orwell", pages: 328, genres: ["Dystopian", "Political Fiction", "Science Fiction"] },
+            { title: "Pride and Prejudice", author: "Jane Austen", pages: 432, genres: ["Romance", "Classic", "Fiction"] },
+            { title: "To Kill a Mockingbird", author: "Harper Lee", pages: 336, genres: ["Classic", "Fiction", "Historical"] },
+            { title: "The Great Gatsby", author: "F. Scott Fitzgerald", pages: 180, genres: ["Classic", "Fiction", "Literary"] },
+            { title: "The Catcher in the Rye", author: "J.D. Salinger", pages: 277, genres: ["Classic", "Fiction", "Coming-of-age"] },
+            { title: "Jane Eyre", author: "Charlotte Brontë", pages: 532, genres: ["Classic", "Romance", "Gothic"] },
+            { title: "Brave New World", author: "Aldous Huxley", pages: 311, genres: ["Dystopian", "Science Fiction", "Classic"] },
+            { title: "Animal Farm", author: "George Orwell", pages: 112, genres: ["Political Fiction", "Satire", "Classic"] },
+            { title: "Wuthering Heights", author: "Emily Brontë", pages: 416, genres: ["Classic", "Romance", "Gothic"] },
+            { title: "Crime and Punishment", author: "Fyodor Dostoevsky", pages: 671, genres: ["Classic", "Psychological Fiction", "Philosophical"] },
+            { title: "The Odyssey", author: "Homer", pages: 541, genres: ["Epic", "Classic", "Poetry"] },
+            { title: "Moby-Dick", author: "Herman Melville", pages: 585, genres: ["Classic", "Adventure", "Literary"] },
+            { title: "War and Peace", author: "Leo Tolstoy", pages: 1225, genres: ["Classic", "Historical", "Literary"] },
+            { title: "The Divine Comedy", author: "Dante Alighieri", pages: 798, genres: ["Epic", "Poetry", "Classic"] },
+            { title: "Don Quixote", author: "Miguel de Cervantes", pages: 863, genres: ["Classic", "Adventure", "Satire"] },
+            { title: "Frankenstein", author: "Mary Shelley", pages: 280, genres: ["Horror", "Gothic", "Science Fiction", "Classic"] },
+            { title: "Dracula", author: "Bram Stoker", pages: 418, genres: ["Horror", "Gothic", "Classic"] },
+            { title: "The Picture of Dorian Gray", author: "Oscar Wilde", pages: 254, genres: ["Classic", "Gothic", "Philosophical"] },
+            { title: "Les Misérables", author: "Victor Hugo", pages: 1463, genres: ["Classic", "Historical", "Literary"] },
+            { title: "The Count of Monte Cristo", author: "Alexandre Dumas", pages: 1276, genres: ["Adventure", "Classic", "Historical"] },
+            
+            // Fantasy
+            { title: "Harry Potter and the Sorcerer's Stone", author: "J.K. Rowling", pages: 309, genres: ["Fantasy", "Young Adult", "Adventure"] },
+            { title: "Harry Potter and the Chamber of Secrets", author: "J.K. Rowling", pages: 341, genres: ["Fantasy", "Young Adult", "Adventure"] },
+            { title: "Harry Potter and the Prisoner of Azkaban", author: "J.K. Rowling", pages: 435, genres: ["Fantasy", "Young Adult", "Adventure"] },
+            { title: "The Hobbit", author: "J.R.R. Tolkien", pages: 310, genres: ["Fantasy", "Adventure", "Classic"] },
+            { title: "The Lord of the Rings", author: "J.R.R. Tolkien", pages: 1178, genres: ["Fantasy", "Adventure", "Epic"] },
+            { title: "The Chronicles of Narnia", author: "C.S. Lewis", pages: 767, genres: ["Fantasy", "Children's", "Adventure"] },
+            { title: "A Game of Thrones", author: "George R.R. Martin", pages: 694, genres: ["Fantasy", "Epic", "Adventure"] },
+            { title: "The Name of the Wind", author: "Patrick Rothfuss", pages: 662, genres: ["Fantasy", "Adventure"] },
+            { title: "Mistborn: The Final Empire", author: "Brandon Sanderson", pages: 541, genres: ["Fantasy", "Adventure"] },
+            { title: "The Way of Kings", author: "Brandon Sanderson", pages: 1007, genres: ["Fantasy", "Epic", "Adventure"] },
+            
+            // Science Fiction
+            { title: "Fahrenheit 451", author: "Ray Bradbury", pages: 249, genres: ["Dystopian", "Science Fiction", "Classic"] },
+            { title: "Dune", author: "Frank Herbert", pages: 688, genres: ["Science Fiction", "Adventure", "Epic"] },
+            { title: "The Hitchhiker's Guide to the Galaxy", author: "Douglas Adams", pages: 224, genres: ["Science Fiction", "Comedy", "Adventure"] },
+            { title: "Ender's Game", author: "Orson Scott Card", pages: 324, genres: ["Science Fiction", "Young Adult", "Military"] },
+            { title: "Foundation", author: "Isaac Asimov", pages: 255, genres: ["Science Fiction", "Classic"] },
+            { title: "Neuromancer", author: "William Gibson", pages: 271, genres: ["Science Fiction", "Cyberpunk"] },
+            { title: "The Martian", author: "Andy Weir", pages: 369, genres: ["Science Fiction", "Adventure", "Survival"] },
+            { title: "Project Hail Mary", author: "Andy Weir", pages: 476, genres: ["Science Fiction", "Adventure", "Space"] },
+            { title: "Snow Crash", author: "Neal Stephenson", pages: 559, genres: ["Science Fiction", "Cyberpunk"] },
+            
+            // Mystery & Thriller
+            { title: "The Girl with the Dragon Tattoo", author: "Stieg Larsson", pages: 465, genres: ["Mystery", "Thriller", "Crime"] },
+            { title: "Gone Girl", author: "Gillian Flynn", pages: 432, genres: ["Thriller", "Mystery", "Psychological"] },
+            { title: "The Da Vinci Code", author: "Dan Brown", pages: 454, genres: ["Thriller", "Mystery", "Adventure"] },
+            { title: "The Silent Patient", author: "Alex Michaelides", pages: 336, genres: ["Thriller", "Mystery", "Psychological"] }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBooks();
+            updateStats();
+            renderBooks();
+        });
+
+        // Search with debouncing
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            
+            if (query.length < 2) {
+                document.getElementById('searchResults').innerHTML = '';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => searchBooks(query), 300);
+        });
+
+        async function searchBooks(query) {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '<div class="loading">Searching...</div>';
+            
+            try {
+                // Try Google Books API first
+                const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10&printType=books&langRestrict=en`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.items && data.items.length > 0) {
+                        const books = data.items.map(item => {
+                            const info = item.volumeInfo;
+                            return {
+                                title: info.title || 'Untitled',
+                                author: info.authors ? info.authors.join(', ') : 'Unknown Author',
+                                pages: info.pageCount || 250, // Default to 250 if no page count
+                                genres: info.categories || ['General']
+                            };
+                        });
+                        
+                        displaySearchResults(books);
+                        return;
+                    }
+                }
+                
+                // If no results from Google, try local
+                searchLocalBooks(query);
+                
+            } catch (error) {
+                console.log('Google Books API error, falling back to local database:', error);
+                searchLocalBooks(query);
+            }
+        }
+
+        function searchLocalBooks(query) {
+            const resultsDiv = document.getElementById('searchResults');
+            const searchLower = query.toLowerCase();
+            
+            const matches = bookDatabase.filter(book => 
+                book.title.toLowerCase().includes(searchLower) ||
+                book.author.toLowerCase().includes(searchLower) ||
+                book.genres.some(g => g.toLowerCase().includes(searchLower))
+            );
+
+            if (matches.length === 0) {
+                resultsDiv.innerHTML = '<div class="loading">No books found. Try searching for any book title or author!</div>';
+                return;
+            }
+
+            displaySearchResults(matches.slice(0, 8));
+        }
+
+        function displaySearchResults(books) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            resultsDiv.innerHTML = books.map(book => {
+                const bookData = JSON.stringify(book).replace(/"/g, '&quot;');
+                return `
+                    <div class="book-result" onclick='addBookFromSearch(${bookData})'>
+                        <div class="result-icon">📖</div>
+                        <div class="result-info">
+                            <div class="result-title">${book.title}</div>
+                            <div class="result-author">${book.author}</div>
+                        </div>
+                        <div class="result-pages">${book.pages} pg</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addBookFromSearch(bookData) {
+            addBook(bookData);
+        }
+
+        function addBook(book) {
+            if (myBooks.some(b => b.title === book.title && b.author === book.author)) {
+                alert('This book is already in your library!');
+                return;
+            }
+
+            myBooks.push(book);
+            saveBooks();
+            renderBooks();
+            updateStats();
+            
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '';
+
+            if (myBooks.length >= 2) {
+                generateRecommendations();
+            }
+        }
+
+        function removeBook(index) {
+            if (confirm('Remove this book from your library?')) {
+                myBooks.splice(index, 1);
+                saveBooks();
+                renderBooks();
+                updateStats();
+                
+                if (myBooks.length >= 2) {
+                    generateRecommendations();
+                } else {
+                    document.getElementById('recsSection').style.display = 'none';
+                }
+            }
+        }
+
+        function renderBooks() {
+            const grid = document.getElementById('booksGrid');
+            
+            if (myBooks.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <div class="empty-text">Your library awaits.<br>Start by searching for books above.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = myBooks.map((book, index) => `
+                <div class="book-card">
+                    <div class="book-card-header">
+                        <button class="remove-btn" onclick="removeBook(${index})">×</button>
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                    </div>
+                    <div class="book-card-body">
+                        <div class="book-pages">${book.pages.toLocaleString()}</div>
+                        <div class="book-pages-label">Pages</div>
+                        ${book.genres && book.genres.length > 0 ? `
+                            <div class="book-genres">
+                                ${book.genres.slice(0, 3).map(genre => 
+                                    `<span class="genre-tag">${genre}</span>`
+                                ).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const totalBooks = myBooks.length;
+            const totalPages = myBooks.reduce((sum, book) => sum + (book.pages || 0), 0);
+            const avgPages = totalBooks > 0 ? Math.round(totalPages / totalBooks) : 0;
+
+            document.getElementById('totalBooks').textContent = totalBooks;
+            document.getElementById('totalPages').textContent = totalPages.toLocaleString();
+            document.getElementById('avgPages').textContent = avgPages.toLocaleString();
+        }
+
+        async function generateRecommendations() {
+            const section = document.getElementById('recsSection');
+            const listDiv = document.getElementById('recsList');
+            
+            section.style.display = 'block';
+            listDiv.innerHTML = '<div class="loading">Generating personalized recommendations...</div>';
+
+            try {
+                // Analyze user's reading patterns
+                const genres = myBooks.flatMap(b => b.genres || []);
+                const genreCounts = {};
+                genres.forEach(g => genreCounts[g] = (genreCounts[g] || 0) + 1);
+                
+                const topGenres = Object.entries(genreCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 2)
+                    .map(([genre]) => genre);
+
+                const myBookTitles = myBooks.map(b => b.title.toLowerCase());
+                const myAuthors = myBooks.map(b => b.author.toLowerCase());
+                
+                // Get the 2 most recent books they added
+                const recentBooks = myBooks.slice(-2);
+                
+                let allRecommendations = [];
+
+                // Strategy 1: Search for books by the same authors
+                for (const book of recentBooks.slice(0, 1)) {
+                    try {
+                        const response = await fetch(
+                            `https://www.googleapis.com/books/v1/volumes?q=inauthor:"${encodeURIComponent(book.author)}"&maxResults=5&printType=books&langRestrict=en`
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.items) {
+                                const books = data.items
+                                    .map(item => ({
+                                        title: item.volumeInfo.title || 'Untitled',
+                                        author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : book.author,
+                                        pages: item.volumeInfo.pageCount || 250,
+                                        genres: item.volumeInfo.categories || [topGenres[0] || 'Fiction'],
+                                        reason: `Another great book by ${book.author}`,
+                                        link: item.volumeInfo.infoLink || item.volumeInfo.previewLink,
+                                        thumbnail: item.volumeInfo.imageLinks?.thumbnail
+                                    }))
+                                    .filter(rec => 
+                                        !myBookTitles.includes(rec.title.toLowerCase()) &&
+                                        rec.pages > 50 &&
+                                        rec.link
+                                    );
+                                
+                                allRecommendations.push(...books.slice(0, 2));
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Same author search failed:', error);
+                    }
+                }
+
+                // Strategy 2: Search for books in their favorite genres
+                for (const genre of topGenres) {
+                    if (allRecommendations.length >= 10) break;
+                    
+                    try {
+                        const response = await fetch(
+                            `https://www.googleapis.com/books/v1/volumes?q=subject:"${encodeURIComponent(genre)}"&orderBy=relevance&maxResults=8&printType=books&langRestrict=en`
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.items) {
+                                const books = data.items
+                                    .map(item => ({
+                                        title: item.volumeInfo.title || 'Untitled',
+                                        author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author',
+                                        pages: item.volumeInfo.pageCount || 250,
+                                        genres: item.volumeInfo.categories || [genre],
+                                        reason: `Popular ${genre} book based on your reading preferences`,
+                                        link: item.volumeInfo.infoLink || item.volumeInfo.previewLink,
+                                        thumbnail: item.volumeInfo.imageLinks?.thumbnail
+                                    }))
+                                    .filter(rec => 
+                                        !myBookTitles.includes(rec.title.toLowerCase()) &&
+                                        !myAuthors.includes(rec.author.toLowerCase()) &&
+                                        rec.pages > 50 &&
+                                        rec.pages < 1500 &&
+                                        rec.link
+                                    );
+                                
+                                allRecommendations.push(...books);
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Genre search failed:', error);
+                    }
+                }
+
+                // Strategy 3: Search using keywords from their favorite books
+                if (allRecommendations.length < 10 && recentBooks.length > 0) {
+                    const book = recentBooks[recentBooks.length - 1];
+                    const searchTerms = `${topGenres[0] || 'fiction'} books like ${book.title}`;
+                    
+                    try {
+                        const response = await fetch(
+                            `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerms)}&maxResults=8&printType=books&langRestrict=en`
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.items) {
+                                const books = data.items
+                                    .map(item => ({
+                                        title: item.volumeInfo.title || 'Untitled',
+                                        author: item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author',
+                                        pages: item.volumeInfo.pageCount || 250,
+                                        genres: item.volumeInfo.categories || [topGenres[0] || 'Fiction'],
+                                        reason: `Similar to ${book.title} that you enjoyed`,
+                                        link: item.volumeInfo.infoLink || item.volumeInfo.previewLink,
+                                        thumbnail: item.volumeInfo.imageLinks?.thumbnail
+                                    }))
+                                    .filter(rec => 
+                                        !myBookTitles.includes(rec.title.toLowerCase()) &&
+                                        rec.pages > 50 &&
+                                        rec.link
+                                    );
+                                
+                                allRecommendations.push(...books);
+                            }
+                        }
+                    } catch (error) {
+                        console.log('Similar books search failed:', error);
+                    }
+                }
+
+                // Remove duplicates and select best 3
+                const uniqueRecs = allRecommendations
+                    .filter((rec, index, self) => 
+                        index === self.findIndex(r => 
+                            r.title.toLowerCase() === rec.title.toLowerCase()
+                        )
+                    )
+                    .slice(0, 3);
+
+                if (uniqueRecs.length > 0) {
+                    listDiv.innerHTML = uniqueRecs.map(rec => `
+                        <a href="${rec.link}" target="_blank" rel="noopener noreferrer" class="rec-card rec-card-link">
+                            <div class="rec-header">
+                                <div class="rec-info">
+                                    <div class="rec-title">${rec.title}</div>
+                                    <div class="rec-author">by ${rec.author}</div>
+                                    <div class="rec-reason">${rec.reason}</div>
+                                </div>
+                                ${rec.thumbnail ? `<img src="${rec.thumbnail}" alt="${rec.title} cover" class="rec-thumbnail">` : ''}
+                            </div>
+                            <div class="rec-action">
+                                <span class="rec-button">View Details & Buy →</span>
+                            </div>
+                        </a>
+                    `).join('');
+                } else {
+                    // Fallback recommendations if API fails
+                    listDiv.innerHTML = `
+                        <div class="rec-card">
+                            <div class="rec-title">Project Hail Mary</div>
+                            <div class="rec-author">by Andy Weir</div>
+                            <div class="rec-reason">Popular recent sci-fi with humor and adventure</div>
+                        </div>
+                        <div class="rec-card">
+                            <div class="rec-title">Where the Crawdads Sing</div>
+                            <div class="rec-author">by Delia Owens</div>
+                            <div class="rec-reason">Compelling mystery and coming-of-age story</div>
+                        </div>
+                        <div class="rec-card">
+                            <div class="rec-title">The Midnight Library</div>
+                            <div class="rec-author">by Matt Haig</div>
+                            <div class="rec-reason">Thoughtful contemporary fiction about life choices</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Recommendation error:', error);
+                listDiv.innerHTML = '<div class="loading">Unable to generate recommendations at this time.</div>';
+            }
+        }
+
+        function saveBooks() {
+            localStorage.setItem('myBooks', JSON.stringify(myBooks));
+        }
+
+        function loadBooks() {
+            const saved = localStorage.getItem('myBooks');
+            if (saved) {
+                myBooks = JSON.parse(saved);
+                if (myBooks.length >= 2) {
+                    generateRecommendations();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
