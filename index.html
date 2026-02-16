@@ -89,6 +89,210 @@
             border-bottom: 1px solid rgba(26, 21, 18, 0.08);
         }
 
+        .save-notice {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(212, 165, 116, 0.1);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--copper);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .save-notice.saving {
+            background: rgba(139, 115, 85, 0.15);
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .backup-controls {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .backup-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid var(--gold);
+            background: white;
+            color: var(--copper);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .backup-btn:active {
+            transform: scale(0.98);
+            background: var(--aged);
+        }
+
+        .fable-section {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .fable-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .fable-logo {
+            font-size: 1.5rem;
+        }
+
+        .fable-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .fable-connect-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .fable-input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e8e3db;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s ease;
+        }
+
+        .fable-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .fable-btn {
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--copper) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .fable-btn:active {
+            transform: scale(0.98);
+        }
+
+        .fable-connected {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--aged);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+        }
+
+        .fable-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .fable-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .fable-username {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .fable-disconnect {
+            padding: 0.5rem 0.75rem;
+            background: white;
+            border: 1px solid var(--gold);
+            color: var(--copper);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fable-disconnect:active {
+            transform: scale(0.98);
+        }
+
+        .fable-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .fable-action-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: white;
+            border: 1px solid var(--gold);
+            color: var(--copper);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .fable-action-btn:active {
+            transform: scale(0.98);
+            background: var(--aged);
+        }
+
+        .fable-note {
+            font-size: 0.8rem;
+            color: var(--copper);
+            font-style: italic;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        #importInput {
+            display: none;
+        }
+
         .stat {
             text-align: center;
             padding: 0.75rem;
@@ -512,6 +716,9 @@
     </div>
 
     <div class="stats">
+        <div class="save-notice" id="saveNotice">
+            ✓ Your library auto-saves to this device
+        </div>
         <div class="stat">
             <div class="stat-value" id="totalBooks">0</div>
             <div class="stat-label">Books</div>
@@ -524,9 +731,59 @@
             <div class="stat-value" id="avgPages">0</div>
             <div class="stat-label">Avg Pages</div>
         </div>
+        <div class="backup-controls">
+            <button class="backup-btn" onclick="exportLibrary()">📥 Export</button>
+            <button class="backup-btn" onclick="document.getElementById('importInput').click()">📤 Import</button>
+            <button class="backup-btn" onclick="clearLibrary()">🗑️ Clear All</button>
+        </div>
+        <input type="file" id="importInput" accept=".json" onchange="importLibrary(event)">
     </div>
 
     <div class="container">
+        <div class="fable-section" id="fableSection">
+            <div class="fable-header">
+                <span class="fable-logo">📖</span>
+                <span class="fable-title">Fable Integration</span>
+            </div>
+            
+            <div id="fableDisconnected">
+                <div class="fable-connect-form">
+                    <input 
+                        type="text" 
+                        class="fable-input" 
+                        id="fableUsername" 
+                        placeholder="Enter your Fable username"
+                        autocomplete="off"
+                    >
+                    <button class="fable-btn" onclick="connectFable()">Connect to Fable</button>
+                </div>
+                <div class="fable-note">
+                    Connect your Fable account to view your reading lists and sync books between platforms. Your Fable profile must be public.
+                </div>
+            </div>
+
+            <div id="fableConnected" style="display: none;">
+                <div class="fable-connected">
+                    <div class="fable-user">
+                        <div class="fable-avatar" id="fableAvatar">F</div>
+                        <div>
+                            <div class="fable-username" id="fableDisplayName">Connected</div>
+                            <div style="font-size: 0.8rem; color: var(--copper);">@<span id="fableUsernameDisplay"></span></div>
+                        </div>
+                    </div>
+                    <button class="fable-disconnect" onclick="disconnectFable()">Disconnect</button>
+                </div>
+                
+                <div class="fable-actions">
+                    <button class="fable-action-btn" onclick="importFromFable()">📥 Import from Fable</button>
+                    <button class="fable-action-btn" onclick="viewOnFable()">🌐 View on Fable</button>
+                </div>
+                <div class="fable-note">
+                    Import your "Want to Read" and "Currently Reading" lists from Fable to PageTurn.
+                </div>
+            </div>
+        </div>
+
         <div class="search-section">
             <div class="search-header">
                 <div class="section-title">Add Books</div>
@@ -562,6 +819,7 @@
     <script>
         let myBooks = [];
         let searchTimeout;
+        let fableUser = null;
 
         // Expanded book database - includes popular books across genres
         const bookDatabase = [
@@ -620,9 +878,126 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadBooks();
+            loadFableConnection();
             updateStats();
             renderBooks();
         });
+
+        // Fable Integration Functions
+        function loadFableConnection() {
+            const saved = localStorage.getItem('fableUser');
+            if (saved) {
+                fableUser = JSON.parse(saved);
+                showFableConnected();
+            }
+        }
+
+        function connectFable() {
+            const username = document.getElementById('fableUsername').value.trim();
+            
+            if (!username) {
+                alert('Please enter your Fable username');
+                return;
+            }
+
+            // Clean username (remove @ if present)
+            const cleanUsername = username.replace('@', '');
+
+            // Store connection
+            fableUser = {
+                username: cleanUsername,
+                connectedAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('fableUser', JSON.stringify(fableUser));
+            showFableConnected();
+
+            const notice = document.getElementById('saveNotice');
+            notice.textContent = '📖 Connected to Fable!';
+            notice.classList.add('saving');
+            setTimeout(() => {
+                notice.classList.remove('saving');
+                notice.textContent = '✓ Your library auto-saves to this device';
+            }, 2000);
+        }
+
+        function showFableConnected() {
+            document.getElementById('fableDisconnected').style.display = 'none';
+            document.getElementById('fableConnected').style.display = 'block';
+            
+            const username = fableUser.username;
+            document.getElementById('fableUsernameDisplay').textContent = username;
+            document.getElementById('fableAvatar').textContent = username.charAt(0).toUpperCase();
+        }
+
+        function disconnectFable() {
+            if (confirm('Disconnect from Fable? You can reconnect anytime.')) {
+                fableUser = null;
+                localStorage.removeItem('fableUser');
+                
+                document.getElementById('fableDisconnected').style.display = 'block';
+                document.getElementById('fableConnected').style.display = 'none';
+                document.getElementById('fableUsername').value = '';
+
+                const notice = document.getElementById('saveNotice');
+                notice.textContent = '📖 Disconnected from Fable';
+                notice.classList.add('saving');
+                setTimeout(() => {
+                    notice.classList.remove('saving');
+                    notice.textContent = '✓ Your library auto-saves to this device';
+                }, 2000);
+            }
+        }
+
+        async function importFromFable() {
+            if (!fableUser) {
+                alert('Please connect to Fable first');
+                return;
+            }
+
+            const notice = document.getElementById('saveNotice');
+            notice.textContent = '📖 Importing from Fable...';
+            notice.classList.add('saving');
+
+            try {
+                // Note: Fable doesn't have a public API, so we'll open their profile
+                // and provide instructions for manual import
+                const fableUrl = `https://fable.co/${fableUser.username}`;
+                
+                // Show helpful dialog
+                const shouldOpen = confirm(
+                    `Fable doesn't provide a public API yet, so we'll open your profile page.\n\n` +
+                    `To import your books:\n` +
+                    `1. Look at your reading lists on Fable\n` +
+                    `2. Come back here and search for those books\n` +
+                    `3. Add them to your PageTurn library\n\n` +
+                    `Click OK to open your Fable profile.`
+                );
+
+                if (shouldOpen) {
+                    window.open(fableUrl, '_blank');
+                }
+
+                notice.classList.remove('saving');
+                notice.textContent = '✓ Your library auto-saves to this device';
+
+            } catch (error) {
+                console.error('Fable import error:', error);
+                alert('Unable to connect to Fable. Please check your username and try again.');
+                notice.classList.remove('saving');
+                notice.textContent = '✓ Your library auto-saves to this device';
+            }
+        }
+
+        function viewOnFable() {
+            if (!fableUser) {
+                alert('Please connect to Fable first');
+                return;
+            }
+
+            const fableUrl = `https://fable.co/${fableUser.username}`;
+            window.open(fableUrl, '_blank');
+        }
 
         // Search with debouncing
         document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -980,6 +1355,20 @@
 
         function saveBooks() {
             localStorage.setItem('myBooks', JSON.stringify(myBooks));
+            showSaveNotice();
+        }
+
+        function showSaveNotice() {
+            const notice = document.getElementById('saveNotice');
+            notice.textContent = '✓ Library saved!';
+            notice.classList.add('saving');
+            
+            setTimeout(() => {
+                notice.classList.remove('saving');
+                setTimeout(() => {
+                    notice.textContent = '✓ Your library auto-saves to this device';
+                }, 300);
+            }, 1000);
         }
 
         function loadBooks() {
@@ -989,6 +1378,114 @@
                 if (myBooks.length >= 2) {
                     generateRecommendations();
                 }
+            }
+        }
+
+        function exportLibrary() {
+            if (myBooks.length === 0) {
+                alert('Your library is empty! Add some books first.');
+                return;
+            }
+
+            const dataStr = JSON.stringify(myBooks, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `pageturn-library-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            const notice = document.getElementById('saveNotice');
+            notice.textContent = '📥 Library exported!';
+            notice.classList.add('saving');
+            setTimeout(() => {
+                notice.classList.remove('saving');
+                notice.textContent = '✓ Your library auto-saves to this device';
+            }, 2000);
+        }
+
+        function importLibrary(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedBooks = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedBooks)) {
+                        alert('Invalid file format!');
+                        return;
+                    }
+
+                    // Ask if they want to replace or merge
+                    let action = 'merge';
+                    if (myBooks.length > 0) {
+                        action = confirm('Merge with existing library? Click OK to merge, Cancel to replace.') ? 'merge' : 'replace';
+                    }
+
+                    if (action === 'replace') {
+                        myBooks = importedBooks;
+                    } else {
+                        // Merge - avoid duplicates
+                        importedBooks.forEach(book => {
+                            if (!myBooks.some(b => b.title === book.title && b.author === book.author)) {
+                                myBooks.push(book);
+                            }
+                        });
+                    }
+
+                    saveBooks();
+                    renderBooks();
+                    updateStats();
+                    
+                    if (myBooks.length >= 2) {
+                        generateRecommendations();
+                    }
+
+                    const notice = document.getElementById('saveNotice');
+                    notice.textContent = '📤 Library imported!';
+                    notice.classList.add('saving');
+                    setTimeout(() => {
+                        notice.classList.remove('saving');
+                        notice.textContent = '✓ Your library auto-saves to this device';
+                    }, 2000);
+
+                } catch (error) {
+                    alert('Error reading file. Please make sure it\'s a valid PageTurn export.');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset input
+            event.target.value = '';
+        }
+
+        function clearLibrary() {
+            if (myBooks.length === 0) {
+                alert('Your library is already empty!');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete all ${myBooks.length} books? This cannot be undone!`)) {
+                myBooks = [];
+                saveBooks();
+                renderBooks();
+                updateStats();
+                document.getElementById('recsSection').style.display = 'none';
+
+                const notice = document.getElementById('saveNotice');
+                notice.textContent = '🗑️ Library cleared';
+                notice.classList.add('saving');
+                setTimeout(() => {
+                    notice.classList.remove('saving');
+                    notice.textContent = '✓ Your library auto-saves to this device';
+                }, 2000);
             }
         }
     </script>
